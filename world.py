@@ -6,25 +6,25 @@ class world_object:
         self.shapes = []
 
 
-    def add_shape(self, vertices):
-        new_shape = shape_object(vertices) 
+    def add_shape(self, position, vertices):
+        new_shape = shape_object(position, vertices) 
         self.shapes.append(new_shape)
         return new_shape
 
 
-    def update_variables(self):
-        colliding_shapes = [False for _ in range(len(self.shapes))]
+    def handle_collisions(self):
         for i, shape1 in enumerate(self.shapes):
             for j in range(i+1, len(self.shapes)):
                 shape2 = self.shapes[j]
-                if not shape1 is shape2 and shape1.is_colliding(shape2):
-                    colliding_shapes[i] = colliding_shapes[j] = True
-        
-        for i, collided in enumerate(colliding_shapes):
-            if collided:
-                self.shapes[i].color = config.COLLIDING_SHAPE_COLOR
-            else:
-                self.shapes[i].color = config.DEFAULT_SHAPE_COLOR
+                if shape1 is not shape2 and shape1.handle_collisions(shape2):
+                    return self.update_variables()
+
+
+    def update_variables(self):
+        self.handle_collisions()
+
+        for shape in self.shapes:
+            shape.velocity = 0
 
 
     def draw(self, surface):
